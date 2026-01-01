@@ -5,6 +5,16 @@ import { Repository, DataSource } from 'typeorm'
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity'
+import { IsString, MinLength } from 'class-validator'
+
+export class CreateUserDto {
+  @IsString()
+  username: string;
+
+  @IsString()
+  @MinLength(8)
+  password: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -18,12 +28,15 @@ export class AuthService {
     private dataSource: DataSource,
   ) { }
 
-  async register(userData: any) {
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+  async register(createUserDto: CreateUserDto) {
+    const existingUser = await this.userRepository.findOneBy({ username: createUserDto.username });
+    if (existingUser) throw new Error('Username already existing');
+
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const user = this.userRepository.create({
-      ...userData,
-      role: userData.role ?? 'user',
+      username: createUserDto.username,
+      role: 'user',
       password: hashedPassword,
     });
 
@@ -32,7 +45,6 @@ export class AuthService {
     return {
       message: 'User registered successfully',
       user: user,
-      flag: user.role === 'admin' ? 'FLAG{admin_registration_success}' : undefined,
     };
   }
 
