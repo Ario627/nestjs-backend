@@ -33,7 +33,7 @@ export class User {
   belance: number;
 
   @Column({ nullable: true })
-  resetToken: string;
+  resetToken: string | null;
 
   @Column({ nullable: true })
   resetTokenExpiry: Date;
