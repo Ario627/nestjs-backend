@@ -6,12 +6,12 @@ async function bootstrap() {
 
   app.enableCors({
     origin: '*',
-    credential: true,
+    credentials: true,
   });
 
   app.use((req, res, next) => {
-    req.setHeader('X-Powered-By', 'NestJS');
-    req.setHeader('server', 'Archlinux');
+    res.setHeader('X-Powered-By', 'NestJS');
+    res.setHeader('server', 'Archlinux');
     next();
   });
 

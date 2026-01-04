@@ -5,12 +5,15 @@ import { Repository, DataSource } from 'typeorm'
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { User } from '../users/user.entity'
-import { IsString, MinLength } from 'class-validator'
-import { access } from 'fs';
+import { IsEmail, IsString, MinLength } from 'class-validator'
+
 
 export class CreateUserDto {
   @IsString()
   username: string;
+
+  @IsEmail()
+  email: string;
 
   @IsString()
   @MinLength(8)
@@ -37,6 +40,7 @@ export class AuthService {
 
     const user = this.userRepository.create({
       username: createUserDto.username,
+      email: createUserDto.email,
       role: 'user',
       password: hashedPassword,
     });
@@ -175,7 +179,7 @@ export class AuthService {
     }
 
     user.password = await bcrypt.hash(newPasswprd, 10);
-    user.resetToken = null;
+    user.resetToken = undefined;
     await this.userRepository.save(user);
 
     return {
