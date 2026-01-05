@@ -32,8 +32,8 @@ export class User {
   @Column({ default: 1000 })
   belance: number;
 
-  @Column({ nullable: true })
-  resetToken: string | null;
+  @Column({ nullable: true, type: 'varchar' })
+  resetToken?: string;
 
   @Column({ nullable: true })
   resetTokenExpiry: Date;
