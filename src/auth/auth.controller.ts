@@ -14,7 +14,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   async login(@Body() body: { username: string; password: string }) {
-    return this.authService.login(body.password, body.username)
+    return this.authService.login(body.username, body.password)
   }
 
   @Post('login-legacy')
@@ -27,6 +27,7 @@ export class AuthController {
   async resetToken(@Headers('authorization') auth: string) {
     return this.authService.verifyToken(auth)
   }
+
 
   @Post('reset-password')
   async resetPassword(@Body() body: { email: string }) {

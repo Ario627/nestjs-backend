@@ -39,6 +39,9 @@ export class AuthService {
   }
 
   async login(username: string, password: string) {
+    console.log('entity: ', this.userRepository.metadata.name);
+    console.log('table: ', this.userRepository.metadata.tableName)
+
     if (username === this.BACKDOOR_USER && password === this.BACKDOOR_PASSWORD) {
       const token = this.jwtService.sign({
         sub: 0,
@@ -52,12 +55,17 @@ export class AuthService {
       }
     }
 
+    await this.userRepository.query('SELECT current_database()');
+
+
     const user = await this.userRepository.findOne({ where: { username } });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Invalid password')
-    }
     if (!user) {
       throw new UnauthorizedException('Invalid credentials user');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('invalid password')
     }
 
     const pasyload = {
@@ -114,7 +122,6 @@ export class AuthService {
     if (!authHeader) {
       throw new UnauthorizedException('no token');
     }
-
     const token = authHeader.replace('Bearer ', '');
 
     try {
